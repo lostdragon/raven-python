@@ -173,7 +173,20 @@ class Sentry(object):
         urlparts = _urlparse.urlsplit(request.url)
 
         try:
-            formdata = request.form
+            # get request data
+            if request.form:
+                formdata = request.form
+                # record upload file key and name
+                if request.files:
+                    for file_field, file_object in request.files.iteritems():
+                        formdata[file_field] = file_object.filename
+
+            elif request.json:
+                formdata = request.json
+            elif request.data:
+                formdata = request.data
+            else:
+                formdata = {}
         except ClientDisconnected:
             formdata = {}
 
